@@ -16,6 +16,5 @@ namespace RestApi.Models
         public IEnumerable<Reservation> Reservations => context.Reservation;
         public IEnumerable<Restaurant> Restaurants => context.Restaurant;
         public IEnumerable<User> Users => context.Users;
-
     }
 }
