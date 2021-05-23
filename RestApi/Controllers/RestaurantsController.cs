@@ -27,7 +27,7 @@ namespace RestApi.Controllers
             return await _context.Restaurant.ToListAsync();
         }
 
-    
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Restaurant>> GetRestaurant(int id)
         {
@@ -44,40 +44,63 @@ namespace RestApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRestaurant(int id, Restaurant restaurant)
         {
+
+            if (!ModelState.IsValid)
+                return BadRequest("Not a valid model");
+
             if (id != restaurant.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(restaurant).State = EntityState.Modified;
+            Restaurant rest = await _context.Restaurant.FindAsync(id);
+            if (rest == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                rest.Name = restaurant.Name;
+                rest.Password = BCrypt.Net.BCrypt.HashPassword(restaurant.Password);
+                rest.Phone1 = restaurant.Phone1;
+                rest.Phone2 = restaurant.Phone2;
+                rest.Description = restaurant.Description;
+                rest.Location = restaurant.Location;
+                rest.SocialMedia = restaurant.SocialMedia;
+                rest.Website = restaurant.Website;
+                await _context.SaveChangesAsync();
 
+            }
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!RestaurantExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+
+                throw new Exception("Can't Save");
+
             }
 
-            return NoContent();
+            return CreatedAtAction("GetRestaurant", new { id = rest.Id }, rest);
         }
 
      
         [HttpPost]
         public async Task<ActionResult<Restaurant>> PostRestaurant(Restaurant restaurant)
         {
-            _context.Restaurant.Add(restaurant);
-            await _context.SaveChangesAsync();
+            Restaurant restaurants = await _context.Restaurant.FirstOrDefaultAsync(u => u.Name == restaurant.Name);
+            Restaurant res1 = new Restaurant { Name = restaurant.Name, Phone1 = restaurant.Phone1, Phone2 = restaurant.Phone2, Description = restaurant.Description, Website = restaurant.Website, Password = BCrypt.Net.BCrypt.HashPassword(restaurant.Password), Location = restaurant.Location, ListString = restaurant.ListString, SocialMedia = restaurant.SocialMedia };
 
-            return CreatedAtAction("GetRestaurant", new { id = restaurant.Id }, restaurant);
+            if (restaurants == null)
+            {
+                _context.Restaurant.Add(res1);
+                await _context.SaveChangesAsync();
+            }
+            else
+                throw new Exception("ErrorExsistingUser");
+
+            return CreatedAtAction("GetRestaurant", new { id = res1.Id }, res1);
         }
 
         [HttpDelete("{id}")]

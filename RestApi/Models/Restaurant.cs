@@ -19,14 +19,7 @@ namespace RestApi.Models
         public string Phone2 { get; set; }
         public string Website { get; set; }
         public string SocialMedia { get; set; }
-        [NotMapped]
-        public ICollection<string> ImagesEdit { get; set; }
-        public string Images
-        {
-            get { return string.Join(",", ImagesEdit); }
-            set { ImagesEdit = value.Split(',').ToList(); }
-        }
-
+        public string ListString { get; set; }
 
     }
 }

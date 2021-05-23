@@ -21,14 +21,14 @@ namespace RestApi.Controllers
             _context = context;
         }
 
-     
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
-       
+
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(Guid id)
         {
@@ -41,34 +41,52 @@ namespace RestApi.Controllers
 
             return user;
         }
-        
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(Guid id, User user)
         {
+            if (!ModelState.IsValid)
+                return BadRequest("Not a valid model");
+
             if (id != user.Id)
             {
                 return BadRequest();
             }
 
+            User entity = await _context.Users.FindAsync(id);
+            if (entity == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                entity.FirstName = user.FirstName;
+                entity.LastName = user.LastName;
+                entity.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+                entity.Phone = user.Phone;
+                entity.Email = user.Email;
+                entity.Role = user.Role;
+                await _context.SaveChangesAsync();
+
+            }
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                
+                    throw new Exception("Can't Save");
+                
             }
 
-           return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            return CreatedAtAction("GetUser", new { id = entity.Id }, entity);
         }
+    
+
+
+    
 
        
         [HttpPost]
