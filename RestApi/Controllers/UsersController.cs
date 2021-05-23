@@ -51,8 +51,6 @@ namespace RestApi.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();
@@ -69,17 +67,25 @@ namespace RestApi.Controllers
                 }
             }
 
-            return NoContent();
+           return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
        
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            User users = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
+            User user1 = new User { FirstName = user.FirstName, LastName = user.LastName, Phone = user.Phone, Role = user.Role, Email = user.Email, Password = BCrypt.Net.BCrypt.HashPassword(user.Password) };
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            if (users == null)
+            {
+                _context.Users.Add(user1);
+                await _context.SaveChangesAsync();
+            }
+            else
+                throw new Exception("ErrorExsistingUser");
+
+            return CreatedAtAction("GetUser", new { id = user1.Id }, user1);
         }
 
        

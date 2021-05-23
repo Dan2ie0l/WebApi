@@ -79,7 +79,7 @@ namespace RestApi.Controllers
 
             return CreatedAtAction("GetRestaurant", new { id = restaurant.Id }, restaurant);
         }
-]
+
         [HttpDelete("{id}")]
         public async Task<ActionResult<Restaurant>> DeleteRestaurant(int id)
         {
