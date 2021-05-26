@@ -5,10 +5,11 @@ using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace RestApi.Infrastructure.Data
 {
-    public class BaseReposirory<T> : IAsyncRepository<T> where T : class
+    public class BaseRepository<T> : IAsyncRepository<T> where T : class
     {
         protected readonly DbSet<T> Entities;
         private readonly DbContext context;
@@ -30,7 +31,7 @@ namespace RestApi.Infrastructure.Data
 
         public async virtual Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeProperties = "")
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
         {
             IQueryable<T> query = Entities;
 
@@ -39,15 +40,10 @@ namespace RestApi.Infrastructure.Data
                 query = query.Where(filter);
             }
 
-            if (!(includeProperties is null))
+            if (!(include is null))
             {
-                foreach (var includeProperty in includeProperties.Split
-                    (',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProperty);
-                }
+                query = include(query);
             }
-
 
             if (!(orderBy is null))
             {
@@ -57,6 +53,17 @@ namespace RestApi.Infrastructure.Data
             {
                 return await query.ToListAsync();
             }
+        }
+
+        public virtual async Task InsertAsync(T item) => await Entities.AddAsync(item);
+        public virtual async Task InsertRangeAsync(IEnumerable<T> items) => await Entities.AddRangeAsync(items);
+
+        public virtual void Delete(T item) => Entities.Remove(item);
+
+        public virtual void Update(T item)
+        {
+            Entities.Attach(item);
+            context.Entry(item).State = EntityState.Modified;
         }
     }
 }
