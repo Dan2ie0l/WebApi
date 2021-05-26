@@ -10,30 +10,43 @@ namespace RestApi.Services.Implementations
 {
     public class RestaurantService : IRestaurantService
     {
-        private IUnitOfWork
+        private readonly IUnitOfWork unitOfWork;
+
+        public RestaurantService(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         public async Task CreateAsync(Restaurant restaurant)
         {
-            throw new NotImplementedException();
+            await unitOfWork.Restaurants.InsertAsync(restaurant);
+            await unitOfWork.CommitAsync();
+
         }
 
         public async Task DeleteAsync(Restaurant restaurant)
         {
-            throw new NotImplementedException();
+            unitOfWork.Restaurants.Delete(restaurant);
+            await unitOfWork.CommitAsync();
         }
 
         public async Task<IEnumerable<Restaurant>> GetAllAsync(Expression<Func<Restaurant, bool>> expression = null)
         {
-            throw new NotImplementedException();
+            return await unitOfWork.Restaurants.GetAllAsync(expression);
         }
 
         public async Task<Restaurant> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await unitOfWork.Restaurants.GetByIdAsync(id);
         }
 
-        public async Task UpdateAsync(int id, Restaurant restaurant)
+        public async Task UpdateAsync(Restaurant restaurant)
         {
-            throw new NotImplementedException();
+            if (!(restaurant is null))
+            {
+                unitOfWork.Restaurants.Update(restaurant);
+                await unitOfWork.CommitAsync();
+            }
         }
     }
 }
