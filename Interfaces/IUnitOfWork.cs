@@ -6,7 +6,7 @@ namespace RestApi.Domain.Interfaces
     public interface IUnitOfWork
     {
         IAsyncRepository<Restaurant> Restaurants { get; }
-        IAsyncRepository<Table> Tables { get;  }
+        IAsyncRepository<Table> Tables { get; }
         IAsyncRepository<Reservation> Reservations { get; }
 
         void Commit();

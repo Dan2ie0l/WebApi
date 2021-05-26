@@ -11,8 +11,8 @@ namespace RestApi.Implementations.Data
         public DbSet<Table> Tables { get; set; }
         public DbSet<Restaurant> Restaurant { get; set; }
 
-        public ApplicationDbContext() 
-            : base("DefaultConnection")
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbContext) 
+            : base(dbContext)
         {
 
         }

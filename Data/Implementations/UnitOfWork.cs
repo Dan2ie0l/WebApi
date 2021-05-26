@@ -1,5 +1,6 @@
 ﻿using RestApi.Domain.Core;
 using RestApi.Domain.Interfaces;
+using RestApi.Domain.Interfaces;
 using RestApi.Implementations.Data;
 using RestApi.Infrastructure.Data;
 using System.Threading.Tasks;
