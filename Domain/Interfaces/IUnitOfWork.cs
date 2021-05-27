@@ -1,4 +1,5 @@
-﻿using RestApi.Domain.Core;
+﻿using RestApi.Domain;
+using RestApi.Domain.Core;
 using System.Threading.Tasks;
 
 namespace RestApi.Domain.Interfaces
