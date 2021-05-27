@@ -39,9 +39,8 @@ namespace RestApi.Services.Interfaces
         /// <summary>
         /// Update an already existing restaurant record
         /// </summary>
-        /// <param name="id">Unique identifier for restaurant record</param>
         /// <param name="restaurant">Restaurant new instance</param>
         /// <returns></returns>
-        Task UpdateAsync(int id, Restaurant restaurant);
+        Task UpdateAsync(Restaurant restaurant);
     }
 }

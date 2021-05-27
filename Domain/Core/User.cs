@@ -4,8 +4,7 @@ using System;
 
 namespace RestApi.Domain.Core
 {
-    public class User : IdentityUser<Guid>
+    public class User : IdentityUser
     {
-
     }
 }

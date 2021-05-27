@@ -24,33 +24,29 @@ namespace RestApi.Controllers
     [ApiController]
     public class AuthUserController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> userManager;
+        private readonly SignInManager<User> signInManager;
 
-        public AuthUserController(ApplicationDbContext context)
+        public AuthUserController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
-            _context = context;
+            this.userManager = userManager;
+            this.signInManager = signInManager;
         }
 
         [HttpPost]
-
         public async Task<IActionResult> Register(User user)
         {
-            User users = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
-            User user1 = new User { FirstName = user.FirstName, LastName = user.LastName, Phone = user.Phone, Role = user.Role, Email = user.Email, Password = BCrypt.Net.BCrypt.HashPassword(user.Password) };
+            User users = await userManager.FindByEmailAsync(user.Email);
+            User user1 = new User();
+            
             if (users == null)
-            {
-                    
-                    _context.Users.Add(user1);
-                    await _context.SaveChangesAsync();
-
-                }
-                else
-                   throw new Exception("ErrorExsistingUser");
+            {    
+                await userManager.CreateAsync(user1);
+            }
+            else
+                throw new Exception("ErrorExsistingUser");
 
             return CreatedAtAction("GetUser", new { id = user1.Id }, user1);
         }
-
-
-
     }
 }

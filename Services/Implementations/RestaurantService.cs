@@ -48,10 +48,5 @@ namespace RestApi.Services.Implementations
                 await unitOfWork.CommitAsync();
             }
         }
-
-        public Task UpdateAsync(int id, Restaurant restaurant)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
