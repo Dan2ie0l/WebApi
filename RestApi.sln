@@ -7,19 +7,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestApi", "RestApi\RestApi.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{7700EF09-A313-4DB3-89A0-59D22F3629A3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Models\Core.csproj", "{D718E403-3300-4F66-A91D-572FC90E3A98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Domain\Core\Core.csproj", "{D718E403-3300-4F66-A91D-572FC90E3A98}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interfaces", "Interfaces\Interfaces.csproj", "{1AD8F9AF-520B-45FF-AF21-14F518A50B86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain.Interfaces", "Domain\Interfaces\Domain.Interfaces.csproj", "{1AD8F9AF-520B-45FF-AF21-14F518A50B86}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{0DB78BE2-6A71-44E6-9451-43E23BD4686B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", "{204878FF-B630-4DBD-8AB8-C729CDD32349}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Infrastructure\Data\Data.csproj", "{204878FF-B630-4DBD-8AB8-C729CDD32349}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{944FF89C-7418-4410-9E0B-7D8F049862C3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Implementations", "Implementations\Implementations.csproj", "{2EF7602B-22C5-425C-8B4C-56D4E00D8CA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Implementations", "Services\Implementations\Implementations.csproj", "{2EF7602B-22C5-425C-8B4C-56D4E00D8CA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Interfaces", "Services.Interfaces\Services.Interfaces.csproj", "{E6775D7E-7C3A-45F7-89DC-E2B7DAD679B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Interfaces", "Services\Interfaces\Services.Interfaces.csproj", "{E6775D7E-7C3A-45F7-89DC-E2B7DAD679B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

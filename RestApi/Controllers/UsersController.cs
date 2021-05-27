@@ -16,117 +16,52 @@ namespace RestApi.Controllers
 
     public class UsersController : ControllerBase
     {
-        private readonly UserManager<User> users;
+        private readonly UserManager<User> userManager;
+        private readonly SignInManager<User> signInManager;
 
-        public UsersController(ApplicationDbContext context)
+        public UsersController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
-            _context = context;
+            this.userManager = userManager;
+            this.signInManager = signInManager;
         }
 
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await userManager.Users.ToListAsync();
         }
 
 
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(Guid id)
         {
-            var user = await _context.Users.FindAsync(id);
+            string guid = id.ToString();
+            var user = await userManager.FindByIdAsync(guid);
 
-            if (user == null)
+            if (user is null)
             {
                 return NotFound();
             }
 
             return user;
-        }
-
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(Guid id, User user)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest("Not a valid model");
-
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
-
-            User entity = await _context.Users.FindAsync(id);
-            if (entity == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                entity.FirstName = user.FirstName;
-                entity.LastName = user.LastName;
-                entity.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-                entity.Phone = user.Phone;
-                entity.Email = user.Email;
-                entity.Role = user.Role;
-                await _context.SaveChangesAsync();
-
-            }
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                
-                    throw new Exception("Can't Save");
-                
-            }
-
-            return CreatedAtAction("GetUser", new { id = entity.Id }, entity);
-        }
-    
-
-
-    
-
-       
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
-        {
-            User users = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
-            User user1 = new User { FirstName = user.FirstName, LastName = user.LastName, Phone = user.Phone, Role = user.Role, Email = user.Email, Password = BCrypt.Net.BCrypt.HashPassword(user.Password) };
-
-            if (users == null)
-            {
-                _context.Users.Add(user1);
-                await _context.SaveChangesAsync();
-            }
-            else
-                throw new Exception("ErrorExsistingUser");
-
-            return CreatedAtAction("GetUser", new { id = user1.Id }, user1);
         }
 
        
         [HttpDelete("{id}")]
-        public async Task<ActionResult<User>> DeleteUser(Guid id)
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            string guid = id.ToString();
+            var user = await userManager.FindByIdAsync(guid);
+
+            if (user is null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            await userManager.DeleteAsync(user);
 
-            return user;
-        }
-
-        private bool UserExists(Guid id)
-        {
-            return _context.Users.Any(e => e.Id == id);
+            return Ok();
         }
     }
 }
