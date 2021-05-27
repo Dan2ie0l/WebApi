@@ -33,7 +33,6 @@ namespace RestApi.Controllers
 
         public async Task<IActionResult> Register(User user)
         {
-
             User users = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
             User user1 = new User { FirstName = user.FirstName, LastName = user.LastName, Phone = user.Phone, Role = user.Role, Email = user.Email, Password = BCrypt.Net.BCrypt.HashPassword(user.Password) };
             if (users == null)
