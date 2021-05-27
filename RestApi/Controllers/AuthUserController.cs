@@ -15,6 +15,8 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Web;
 using RestApi.Models;
+using RestApi.Implementations.Data;
+using RestApi.Domain.Core;
 
 namespace RestApi.Controllers
 {
