@@ -17,6 +17,7 @@ using System.Web;
 using RestApi.Models;
 using RestApi.Implementations.Data;
 using RestApi.Domain.Core;
+using RestApi.Services.DTO.User;
 
 namespace RestApi.Controllers
 {
@@ -34,7 +35,7 @@ namespace RestApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(User user)
+        public async Task<IActionResult> Register(UserRegisterDto user)
         {
             User users = await userManager.FindByEmailAsync(user.Email);
             User user1 = new User();
