@@ -20,7 +20,7 @@ namespace RestApi.Services.Implementations
 
         public string GenerateTokenForUser(User user)
         {
-            var claims = new List<Claim>
+            var claims = new Claim[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
