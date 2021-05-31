@@ -21,6 +21,10 @@ using RestApi.Services.Implementations;
 using RestApi.Services.Interfaces;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
+using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace RestApi
 {
@@ -44,8 +48,23 @@ namespace RestApi
             services.AddMvc(option => option.EnableEndpointRouting = false);
 
             services.AddIdentity<User, IdentityRole>()
-                        .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddAuthentication();
+                    .AddEntityFrameworkStores<ApplicationDbContext>()
+                    .AddDefaultTokenProviders();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = IdentityServerAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Tokens:Key"])),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
             services.AddAuthorization();
             services.AddSwaggerGen(c =>
             {
@@ -54,6 +73,7 @@ namespace RestApi
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             
             services.AddScoped<IRestaurantService, RestaurantService>();
+            services.AddScoped<IJWTGenerator, JWTGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -71,6 +91,7 @@ namespace RestApi
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

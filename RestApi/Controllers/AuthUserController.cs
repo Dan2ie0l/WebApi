@@ -1,23 +1,10 @@
-﻿
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
-using System.Web;
-using RestApi.Models;
-using RestApi.Implementations.Data;
 using RestApi.Domain.Core;
 using RestApi.Services.DTO.User;
+using AutoMapper;
+using RestApi.Services.Interfaces;
 
 namespace RestApi.Controllers
 {
@@ -27,27 +14,78 @@ namespace RestApi.Controllers
     {
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
+        private readonly IJWTGenerator generator;
 
-        public AuthUserController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AuthUserController(UserManager<User> userManager, SignInManager<User> signInManager, IJWTGenerator generator)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.generator = generator;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Register(UserRegisterDto user)
+        [HttpPost("/register")]
+        public async Task<IActionResult> Register([FromBody] UserRegisterDto user)
         {
-            User users = await userManager.FindByEmailAsync(user.Email);
-            User user1 = new User();
-            
-            if (users == null)
-            {    
-                await userManager.CreateAsync(user1);
-            }
-            else
-                throw new Exception("ErrorExsistingUser");
+            if (ModelState.IsValid)
+            {
+                var checkUser = await userManager.FindByEmailAsync(user.Email);
 
-            return CreatedAtAction("GetUser", new { id = user1.Id }, user1);
+                if (checkUser is null)
+                {
+                    var map = new MapperConfiguration(cfg => cfg.CreateMap<UserRegisterDto, User>()
+                                                                .ForMember(t => t.PasswordHash, opt => opt.Ignore()))
+                                                                .CreateMapper();
+                    var resultUser = map.Map<User>(user);
+
+
+                    await userManager.CreateAsync(resultUser, user.Password);
+
+                    return Ok();
+                }
+                else
+                {
+                    ModelState.AddModelError(nameof(user.Email), "Account with this email was already registered");
+                    return BadRequest(ModelState);
+                }
+            }
+            else return BadRequest(ModelState);
         }
+
+        [HttpPost("/login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginDto userDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.FindByEmailAsync(userDto.Login);
+
+                if (user != null)
+                {
+                    var result = await signInManager.PasswordSignInAsync(userDto.Login, userDto.Password, userDto.RememberMe, false);
+
+                    if (result.Succeeded)
+                    {
+                        string token = generator.GenerateTokenForUser(user);
+
+                        var response = new {
+                            token
+                        };
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Invalid password");
+                        return BadRequest(ModelState);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid username");
+                    return BadRequest(ModelState);
+                }
+            }
+            else return BadRequest(ModelState);
+        }
+
     }
 }
