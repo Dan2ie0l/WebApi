@@ -13,5 +13,10 @@ namespace RestApi.Domain.Core
         /// Gets or sets surname for the user
         /// </summary>
         public string Surname { get; set; }
+
+        /// <summary>
+        /// Gets or sets a refresh token for the user
+        /// </summary>
+        public string RefreshToken { get; set; }
     }
 }

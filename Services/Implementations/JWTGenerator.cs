@@ -3,9 +3,9 @@ using Microsoft.IdentityModel.Tokens;
 using RestApi.Domain.Core;
 using RestApi.Services.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace RestApi.Services.Implementations
 {
@@ -18,13 +18,13 @@ namespace RestApi.Services.Implementations
             this.configuration = configuration;
         }
 
-        public string GenerateTokenForUser(User user)
+        public string GenerateTokenForUser(string userId, string userName)
         {
             var claims = new Claim[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.Sub, userId),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
+                new Claim(JwtRegisteredClaimNames.UniqueName, userName)
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(this.configuration["Tokens:Key"]));
@@ -40,6 +40,16 @@ namespace RestApi.Services.Implementations
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+
+            return Convert.ToBase64String(randomNumber);
         }
     }
 }

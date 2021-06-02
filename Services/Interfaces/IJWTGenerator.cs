@@ -4,6 +4,7 @@ namespace RestApi.Services.Interfaces
 {
     public interface IJWTGenerator
     {
-        string GenerateTokenForUser(User user);
+        string GenerateTokenForUser(string userId, string userName);
+        string GenerateRefreshToken();
     }
 }
