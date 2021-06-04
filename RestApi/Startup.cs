@@ -1,13 +1,6 @@
-using System;
-using System.Reflection;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Data.Implementations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,10 +9,8 @@ using Microsoft.Extensions.Hosting;
 using RestApi.Domain.Core;
 using RestApi.Domain.Interfaces;
 using RestApi.Implementations.Data;
-using RestApi.Models;
 using RestApi.Services.Implementations;
 using RestApi.Services.Interfaces;
-using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,7 +34,7 @@ namespace RestApi
             services.AddControllers();
             services.AddDbContext<ApplicationDbContext>(
                options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
-               x => x.MigrationsAssembly("RestApi.Infrastructure.Data")));
+               x => x.MigrationsAssembly("Data")));
 
             services.AddMvc(option => option.EnableEndpointRouting = false);
 

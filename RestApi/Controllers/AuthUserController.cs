@@ -8,7 +8,6 @@ using RestApi.Services.Interfaces;
 
 namespace RestApi.Controllers
 {
-    [Route("[controller]")]
     [ApiController]
     public class AuthUserController : ControllerBase
     {
@@ -23,7 +22,7 @@ namespace RestApi.Controllers
             this.generator = generator;
         }
 
-        [HttpPost("/register")]
+        [HttpPost, Route("~/auth/register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterDto user)
         {
             if (ModelState.IsValid)
@@ -33,14 +32,24 @@ namespace RestApi.Controllers
                 if (checkUser is null)
                 {
                     var map = new MapperConfiguration(cfg => cfg.CreateMap<UserRegisterDto, User>()
+                                                                .ForMember(t => t.UserName, opt => opt.MapFrom((s, d) => d.UserName = s.Email))
                                                                 .ForMember(t => t.PasswordHash, opt => opt.Ignore()))
                                                                 .CreateMapper();
                     var resultUser = map.Map<User>(user);
 
+                    var creationResult = await userManager.CreateAsync(resultUser, user.Password);
 
-                    await userManager.CreateAsync(resultUser, user.Password);
+                    if (creationResult.Succeeded)
+                    {
+                        return Created("", resultUser);
+                    }
+                    else
+                    {
+                        foreach (IdentityError error in creationResult.Errors)
+                            ModelState.AddModelError(string.Empty, error.Description);
 
-                    return Ok();
+                        return BadRequest(ModelState);
+                    }
                 }
                 else
                 {
@@ -51,7 +60,9 @@ namespace RestApi.Controllers
             else return BadRequest(ModelState);
         }
 
-        [HttpPost("/login")]
+  
+
+        [HttpPost, Route("~/auth/login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto userDto)
         {
             if (ModelState.IsValid)
@@ -64,10 +75,11 @@ namespace RestApi.Controllers
 
                     if (result.Succeeded)
                     {
-                        string token = generator.GenerateTokenForUser(user);
+                        string access_token = generator.GenerateTokenForUser(user.Id, user.UserName);
 
-                        var response = new {
-                            token
+                        var response = new
+                        {
+                            access_token,
                         };
 
                         return Ok(response);
