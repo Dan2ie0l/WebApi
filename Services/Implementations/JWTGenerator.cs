@@ -32,7 +32,7 @@ namespace RestApi.Services.Implementations
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(3),
+                Expires = DateTime.UtcNow.AddMonths(1),
                 SigningCredentials = credentials
             };
 
