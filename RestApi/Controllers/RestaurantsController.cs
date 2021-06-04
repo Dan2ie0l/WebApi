@@ -8,6 +8,7 @@ using RestApi.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace RestApi.Controllers
 {
@@ -61,7 +62,7 @@ namespace RestApi.Controllers
             return restaurantDto;
         }
 
-        [Authorize, HttpPut("{id}")]
+        [Authorize, HttpPut, Route("create")]
         public async Task<IActionResult> Create([FromBody] RestaurantDto restaurant)
         {
             if (ModelState.IsValid)
@@ -70,10 +71,13 @@ namespace RestApi.Controllers
 
                 if (!(user is null))
                 {
-                    var map = new MapperConfiguration(cfg => cfg.CreateMap<RestaurantDto, Restaurant>()
-                                                                .ForMember(m => m.Id, opt => opt.Ignore())
-                                                                .ForMember(m => m.User, opt => opt.MapFrom((s, d) => d.User = user)))
-                                                                .CreateMapper();
+                    var map = new MapperConfiguration(cfg =>
+                    {
+                        cfg.CreateMap<RestaurantDto, Restaurant>()
+                            .ForMember(m => m.Id, opt => opt.Ignore())
+                            .ForMember(m => m.User, opt => opt.MapFrom((s, d) => d.User = user));
+                        cfg.CreateMap<LocationDto, Location>();
+                    }).CreateMapper();
 
                     var model = map.Map<Restaurant>(restaurant);
 
@@ -92,7 +96,7 @@ namespace RestApi.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [Authorize, HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
             var restaurant = await restaurantSerivce.GetByIdAsync(id);
@@ -100,6 +104,13 @@ namespace RestApi.Controllers
             if (restaurant is null)
             {
                 return NotFound();
+            }
+
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+
+            if (restaurant.User.Id != user.Id)
+            {
+                return Forbid();
             }
 
             await restaurantSerivce.DeleteAsync(restaurant);

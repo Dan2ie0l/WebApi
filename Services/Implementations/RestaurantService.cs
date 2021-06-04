@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace RestApi.Services.Implementations
 {
@@ -32,12 +33,14 @@ namespace RestApi.Services.Implementations
 
         public async Task<IEnumerable<Restaurant>> GetAllAsync(Expression<Func<Restaurant, bool>> expression = null)
         {
-            return await unitOfWork.Restaurants.GetAllAsync(expression);
+            return await unitOfWork.Restaurants.GetAllAsync(expression, include: c => c.Include(t => t.User)
+                                                                                .Include(t => t.Location));
         }
 
         public async Task<Restaurant> GetByIdAsync(int id)
         {
-            return await unitOfWork.Restaurants.GetByIdAsync(id);
+            return await unitOfWork.Restaurants.GetAsync(t => t.Id == id, c => c.Include(t => t.User)
+                                                                                .Include(t => t.Location));
         }
 
         public async Task UpdateAsync(Restaurant restaurant)

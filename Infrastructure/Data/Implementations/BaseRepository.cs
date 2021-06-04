@@ -19,9 +19,12 @@ namespace RestApi.Infrastructure.Data
             this.context = context;
             Entities = context.Set<T>();
         }
-        public virtual async Task<T> GetAsync(Expression<Func<T, bool>> filter)
+        public virtual async Task<T> GetAsync(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
         {
-            return await Entities.FirstOrDefaultAsync(filter);
+            IQueryable<T> entities = Entities;
+            entities = include(entities);
+
+            return await entities.FirstOrDefaultAsync(filter);
         }
 
         public virtual async Task<T> GetByIdAsync(object id)
