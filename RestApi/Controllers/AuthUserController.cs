@@ -5,7 +5,6 @@ using RestApi.Domain.Core;
 using RestApi.Services.DTO.User;
 using AutoMapper;
 using RestApi.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
 
 namespace RestApi.Controllers
 {
@@ -38,7 +37,6 @@ namespace RestApi.Controllers
                                                                 .CreateMapper();
                     var resultUser = map.Map<User>(user);
 
-
                     var creationResult = await userManager.CreateAsync(resultUser, user.Password);
 
                     if (creationResult.Succeeded)
@@ -48,7 +46,7 @@ namespace RestApi.Controllers
                     else
                     {
                         foreach (IdentityError error in creationResult.Errors)
-                            ModelState.AddModelError("", error.Description);
+                            ModelState.AddModelError(string.Empty, error.Description);
 
                         return BadRequest(ModelState);
                     }
